@@ -11,8 +11,8 @@ public class Main {
         List<Person> phoneBook = new ArrayList<>();
         List<String> searchList = new ArrayList<>();
         try{
-            File directory = new File("C:\\Users\\Almoxarife\\IdeaProjects\\Phone Book\\Phone Book\\task\\src\\phonebook\\directory.txt");
-            File find = new File("C:\\Users\\Almoxarife\\IdeaProjects\\Phone Book\\Phone Book\\task\\src\\phonebook\\find.txt");
+            File directory = new File("C:\\Users\\Almoxarife\\Downloads\\directory.txt");
+            File find = new File("C:\\Users\\Almoxarife\\Downloads\\find.txt");
 
             Scanner scanner = new Scanner(directory);
             while (scanner.hasNext()) {
@@ -30,15 +30,14 @@ public class Main {
             fnfe.printStackTrace();
         }
 
-
-
         // --- Faz a busca Linear
         int found = 0;
 
         System.out.println("\nStart searching (linear search)...");
+        List<Person> pb0 = new ArrayList<>(phoneBook);
         long time0 = System.currentTimeMillis();
         for (String s : searchList) {
-            if (Search.linearSearch(s, phoneBook) >= 0) {
+            if (Search.linearSearch(s, pb0) >= 0) {
                 found++;
             }
         }
@@ -57,8 +56,9 @@ public class Main {
         found = 0;
 
         System.out.println("\nStart searching (bubble sort + jump search)...");
+        List<Person> pb1 = new ArrayList<>(phoneBook);
         long sTime = System.currentTimeMillis();
-        boolean sorted = Sort.bubbleSort(phoneBook, time * 10);
+        boolean sorted = Sort.bubbleSort(pb1, time * 10);
 
         long sortTime = System.currentTimeMillis() - sTime;
         long sMinutes = (sortTime / 1000) / 60;
@@ -70,7 +70,7 @@ public class Main {
 
             long bTime = System.currentTimeMillis();
             for (String s : searchList) {
-                if (Search.jumpSearch(s, phoneBook) >= 0) {
+                if (Search.jumpSearch(s, pb1) >= 0) {
                     found++;
                 }
             }
@@ -95,7 +95,7 @@ public class Main {
         } else {
             long bTime = System.currentTimeMillis();
             for (String s : searchList) {
-                if (Search.linearSearch(s, phoneBook) >= 0) {
+                if (Search.linearSearch(s, pb1) >= 0) {
                     found++;
                 }
             }
@@ -120,5 +120,43 @@ public class Main {
         }
 
 
+        // --- Faz a Busca Binária
+        found = 0;
+
+        System.out.println("\nStart searching (quick sort + binary search)...");
+        List<Person> pb2 = new ArrayList<>(phoneBook);
+        long qsTime = System.currentTimeMillis();
+        Sort.quicksort(pb2, 0, pb2.size() - 1);
+
+        long qsortTime = System.currentTimeMillis() - qsTime;
+        long qsMinutes = (qsortTime / 1000) / 60;
+        long qsSeconds = (qsortTime / 1000) % 60;
+        long qsT1 = (qsMinutes * 60) + qsSeconds;
+        long qsMilliseconds = qsortTime - (qsT1 * 1000);
+
+        long bsTime = System.currentTimeMillis();
+        for (String s : searchList) {
+            if (Search.binarySearch(pb2, s) >= 0) {
+                found++;
+            }
+        }
+        long bsearchTime = System.currentTimeMillis() - bsTime;
+        long bsMinutes = (bsearchTime / 1000) / 60;
+        long bsSeconds = (bsearchTime / 1000) % 60;
+        long bsT1 = (bsMinutes * 60) + bsSeconds;
+        long bsMilliseconds = bsearchTime - (bsT1 * 1000);
+
+        long bsTotalTime = qsortTime + bsearchTime;
+        long bsTotalMinutes = (bsTotalTime / 1000) / 60;
+        long bsTotalSeconds = (bsTotalTime / 1000) % 60;
+        long bsTotalT1 = (bsTotalMinutes * 60) + bsTotalSeconds;
+        long bsTotalMilliseconds = bsTotalTime - (bsTotalT1 * 1000);
+        System.out.printf("Found %d / %d entries. Time taken: %d min. %d sec. %d ms.\n" +
+                        "Sorting time: %d min. %d sec. %d ms.\n" +
+                        "Searching time: %d min. %d sec. %d ms.\n",
+                found, searchList.size(),
+                bsTotalMinutes, bsTotalSeconds, bsTotalMilliseconds,
+                qsMinutes, qsSeconds, qsMilliseconds,
+                bsMinutes, bsSeconds, bsMilliseconds);
     }
 }

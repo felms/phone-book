@@ -21,4 +21,36 @@ public class Sort {
 
         return true;
     }
+
+    public static void quicksort(List<Person> list, int low, int hi) {
+            if (low < hi) {
+
+                int p = partition(list, low, hi);
+
+                quicksort(list, low, p - 1);
+                quicksort(list, p + 1, hi);
+            }
+    }
+
+    private static int partition(List<Person> list, int low, int hi) {
+
+        Person pivot = list.get(hi);
+        int i = low - 1 ;
+        for (int j = low; j < hi; j++) {
+
+            if (list.get(j).compareTo(pivot) <= 0) {
+                i++;
+
+                Person aux = list.get(i);
+                list.set(i, list.get(j));
+                list.set(j, aux);
+            }
+        }
+
+        Person aux = list.get(i + 1);
+        list.set(i + 1, list.get(hi));
+        list.set(hi, aux);
+
+        return i + 1;
+    }
 }
