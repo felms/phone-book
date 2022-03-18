@@ -1,18 +1,23 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+
 import java.util.Scanner;
 
 public class Main {
+
+    private static long time;
     public static void main(String[] args) {
 
         // Lê os arquivos
         List<Person> phoneBook = new ArrayList<>();
         List<String> searchList = new ArrayList<>();
         try{
-            File directory = new File("C:\\Users\\Almoxarife\\Downloads\\directory.txt");
-            File find = new File("C:\\Users\\Almoxarife\\Downloads\\find.txt");
+            File directory = new File("/home/felipe/Downloads/directory.txt");
+            File find = new File("/home/felipe/Downloads/find.txt");
 
             Scanner scanner = new Scanner(directory);
             while (scanner.hasNext()) {
@@ -30,18 +35,33 @@ public class Main {
             fnfe.printStackTrace();
         }
 
-        // --- Faz a busca Linear
+        List<Person> pb0 = new ArrayList<>(phoneBook);
+        lSearch(pb0, searchList);
+
+        List<Person> pb1 = new ArrayList<>(phoneBook);
+        jSearch(pb1, searchList);
+
+        List<Person> pb2 = new ArrayList<>(phoneBook);
+        bSearch(pb2, searchList);
+
+        List<Person> pb3 = new ArrayList<>(phoneBook);
+        hashTSearch(pb3, searchList);
+
+    }
+
+    // Faz a busca Linear
+    public static void lSearch(List<Person> phoneBook, List<String> searchList) {
+
         int found = 0;
 
         System.out.println("\nStart searching (linear search)...");
-        List<Person> pb0 = new ArrayList<>(phoneBook);
         long time0 = System.currentTimeMillis();
         for (String s : searchList) {
-            if (Search.linearSearch(s, pb0) >= 0) {
+            if (Search.linearSearch(s, phoneBook) >= 0) {
                 found++;
             }
         }
-        long time = System.currentTimeMillis() - time0;
+        time = System.currentTimeMillis() - time0;
 
         long minutes = (time / 1000) / 60;
         long seconds = (time / 1000) % 60;
@@ -50,15 +70,16 @@ public class Main {
 
         System.out.printf("Found %d / %d entries. Time taken: %d min. %d sec. %d ms.\n",
                 found, searchList.size(), minutes, seconds, milliseconds);
+    }
 
+    // Faz a Jump Search
+    public static void jSearch(List<Person> phoneBook, List<String> searchList) {
 
-        // --- Faz a Jump Search
-        found = 0;
+        int found = 0;
 
         System.out.println("\nStart searching (bubble sort + jump search)...");
-        List<Person> pb1 = new ArrayList<>(phoneBook);
         long sTime = System.currentTimeMillis();
-        boolean sorted = Sort.bubbleSort(pb1, time * 10);
+        boolean sorted = Sort.bubbleSort(phoneBook, time * 10);
 
         long sortTime = System.currentTimeMillis() - sTime;
         long sMinutes = (sortTime / 1000) / 60;
@@ -70,7 +91,7 @@ public class Main {
 
             long bTime = System.currentTimeMillis();
             for (String s : searchList) {
-                if (Search.jumpSearch(s, pb1) >= 0) {
+                if (Search.jumpSearch(s, phoneBook) >= 0) {
                     found++;
                 }
             }
@@ -95,7 +116,7 @@ public class Main {
         } else {
             long bTime = System.currentTimeMillis();
             for (String s : searchList) {
-                if (Search.linearSearch(s, pb1) >= 0) {
+                if (Search.linearSearch(s, phoneBook) >= 0) {
                     found++;
                 }
             }
@@ -118,15 +139,16 @@ public class Main {
                     sMinutes, sSeconds, sMilliseconds,
                     jsMinutes, jsSeconds, jsMilliseconds);
         }
+    }
 
+    // Faz a Busca Binária
+    public static void bSearch(List<Person> phoneBook, List<String> searchList) {
 
-        // --- Faz a Busca Binária
-        found = 0;
+        int found = 0;
 
         System.out.println("\nStart searching (quick sort + binary search)...");
-        List<Person> pb2 = new ArrayList<>(phoneBook);
         long qsTime = System.currentTimeMillis();
-        Sort.quicksort(pb2, 0, pb2.size() - 1);
+        Sort.quicksort(phoneBook, 0, phoneBook.size() - 1);
 
         long qsortTime = System.currentTimeMillis() - qsTime;
         long qsMinutes = (qsortTime / 1000) / 60;
@@ -136,7 +158,7 @@ public class Main {
 
         long bsTime = System.currentTimeMillis();
         for (String s : searchList) {
-            if (Search.binarySearch(pb2, s) >= 0) {
+            if (Search.binarySearch(phoneBook, s) >= 0) {
                 found++;
             }
         }
@@ -158,5 +180,52 @@ public class Main {
                 bsTotalMinutes, bsTotalSeconds, bsTotalMilliseconds,
                 qsMinutes, qsSeconds, qsMilliseconds,
                 bsMinutes, bsSeconds, bsMilliseconds);
+    }
+
+    // Faz a busca com a HashTable
+    public static void hashTSearch(List<Person> phoneBook, List<String> searchList) {
+
+        int found = 0;
+
+        System.out.println("\nStart searching (hash table)...");
+        long time0 = System.currentTimeMillis();
+        HashMap<String, Person> hashMap = new HashMap<>();
+        for (Person p : phoneBook) {
+            hashMap.put(p.getName(), p);
+        }
+        long htTime = System.currentTimeMillis() - time0;
+        long htMinutes = (htTime / 1000) / 60;
+        long htSeconds = (htTime / 1000) % 60;
+        long htT1 = (htMinutes * 60) + htSeconds;
+        long htMilliseconds = htTime - (htT1 * 1000);
+
+
+        long time1 = System.currentTimeMillis();
+        for (String s : searchList) {
+            Person p = hashMap.get(s);
+            if (p != null) {
+                found++;
+            }
+        }
+        long htSearchTime = System.currentTimeMillis() - time1;
+        long htsMinutes = (htSearchTime / 1000) / 60;
+        long htsSeconds = (htSearchTime / 1000) % 60;
+        long htsT1 = (htsMinutes * 60) + htsSeconds;
+        long htsMilliseconds = htSearchTime - (htsT1 * 1000);
+
+        long htTotalTime = htTime + htSearchTime;
+        long htTotalMinutes = (htTotalTime / 1000) / 60;
+        long htTotalSeconds = (htTotalTime / 1000) % 60;
+        long htTotalT1 = (htTotalMinutes * 60) + htTotalSeconds;
+        long htTotalMilliseconds = htTotalTime - (htTotalT1 * 1000);
+
+        System.out.printf("Found %d / %d entries. Time taken: %d min. %d sec. %d ms\n" +
+                        "Creating time: %d min. %d sec. %d ms.\n" +
+                        "Searching time: %d min. %d sec. %d ms.\n",
+                found, searchList.size(),
+                htTotalMinutes, htTotalSeconds, htTotalMilliseconds,
+                htMinutes, htSeconds, htMilliseconds,
+                htsMinutes, htsSeconds, htsMilliseconds);
+
     }
 }
